@@ -4,7 +4,8 @@ Scripts to ssh to ec2 instances by tag or name with tmuxinator
 ## Installation:
 * Install tmux
 * Install [tmuxinator](https://github.com/tmuxinator/tmuxinator)
-* ```
+* Install ec2-ssh
+```
 git clone git@github.com:orimarti/ec2-ssh.git
 chmod +x ec2-ssh/*
 echo "export PATH=$PATH:`pwd`/ec2-ssh/" >> ~/.bashrc
