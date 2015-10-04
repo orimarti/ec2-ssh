@@ -1,0 +1,47 @@
+#!/bin/bash
+
+function usage {
+  echo "$0 [tag-name] tag-value"
+}
+
+if [[ $# -lt 1 || $# -gt 2 ]]; then
+  usage
+  exit 1
+fi
+get_all_ips_by_tag=`which get-all-ips-by-tag`
+get_all_ips_by_tag=${get_all_ips_by_tag:-/usr/local/bin/get-all-ips-by-tag}
+
+if [[ $# -eq 1 ]]; then
+  tag_name="Name"
+  tag_value=$1
+else
+  tag_name=$1
+  tag_value=$2
+fi
+
+all_servers=($($get_all_ips_by_tag $tag_name $tag_value))
+if [[ ${#all_servers[@]} -eq 1 ]]; then
+  ssh ${all_servers[0]}
+else
+  tmux_sess="ec2-ssh-`date +%s`"
+  file_name="$HOME/.tmuxinator/${tmux_sess}.yml"
+  echo $file_name
+  cat > $file_name <<EOF
+
+name: ec2-ssh
+root: ~/
+
+windows:
+  - ec2-ssh:
+      layout: main-vertical
+      panes:
+EOF
+  count=0
+  for i in ${all_servers[@]}; do
+    echo "          - ${tag_value} ${count}: ssh ${i}" >> $file_name
+    count=$((count + 1))
+  done
+  echo "Connecting to $tmux_sess"
+  tmuxinator $tmux_sess
+  rm -rf $file_name
+fi

@@ -1,0 +1,6 @@
+#!/bin/bash
+if [[ $# -ne 2 ]]; then
+  echo "Usage $0 tag-key tag-value"
+fi
+aws=`which aws`
+$aws ec2 describe-instances --filters Name=tag:$1,Values=$2 --query "Reservations[].Instances[].PublicDnsName" --output text
